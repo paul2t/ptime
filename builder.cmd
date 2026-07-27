@@ -9,14 +9,16 @@ rem builder [-32bit|-64bit] [-Debug|-Release]
 rem --> Defaults: -64bit -Release
 
 
-rem Global configuration variables. Should be update based on your system
-SET VISUAL_STUDIO_NAME=Visual Studio 17 2022
-SET CMAKE_HOME=C:\Program Files\CMake
+rem No generator is hardcoded: CMake picks its default, the newest Visual Studio it can find.
+rem Override it through the CMAKE_GENERATOR environment variable, e.g. SET CMAKE_GENERATOR=Ninja
+rem -A only exists on the Visual Studio generators, so it is dropped whenever one is overridden.
+SET ARCH=-A x64
+if "%1"=="-32bit" SET ARCH=-A Win32
+if defined CMAKE_GENERATOR SET ARCH=
 
 rem First parameter is project folder path
 SET PROJECT_DIR="%~dp0"
 SET ORIGINAL_DIR="%cd%"
-SET CMAKE="%CMAKE_HOME%\bin\cmake.exe"
 
 rem Go to project directory
 cd %PROJECT_DIR%
@@ -28,23 +30,27 @@ if "%1"=="-32bit" (
   rmdir /s /q build_32
   md build_32
   cd build_32
-  %CMAKE% .. -G "%VISUAL_STUDIO_NAME%" -A Win32
+  cmake .. %ARCH%
 ) ELSE (
   echo === Generating 64bit project ===
 
   rmdir /s /q build_64
   md build_64
   cd build_64
-  %CMAKE% .. -G "%VISUAL_STUDIO_NAME%" -A x64
+  cmake .. %ARCH%
 )
 
 rem Third parameter defines debug or release compilation
+rem cpack is invoked directly rather than through the PACKAGE target, which only the
+rem Visual Studio generators spell that way.
 if "%2"=="-Debug" (
   echo === Building in Debug mode ===
-  %CMAKE% --build . --target PACKAGE --config Debug
+  cmake --build . --config Debug
+  cpack -C Debug
 ) ELSE (
   echo === Building in Release mode ===
-  %CMAKE% --build . --target PACKAGE --config Release
+  cmake --build . --config Release
+  cpack -C Release
 )
 
 
