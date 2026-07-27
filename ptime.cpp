@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
   }
 
 
-  cout << "=== " << cmd_to_run.str() << " ===" << endl;
+  cerr << "=== " << cmd_to_run.str() << " ===" << endl;
 
   timeBeginPeriod(1u);
   DWORD start_time = timeGetTime( );
@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
   DWORD total_time = timeGetTime( ) - start_time;
   timeEndPeriod(1u);
 
-  cout << "=== Execution time: " << std::fixed << std::setprecision(3) << (total_time * 0.001) << " s ===" << endl;
+  cerr << "=== Execution time: " << std::fixed << std::setprecision(3) << (total_time * 0.001) << " s ===" << endl;
 
   return 0;
 }
